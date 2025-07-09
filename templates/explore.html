@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Explore Mode - UrbanGuardian</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <h2>🌍 UrbanGuardian: Explore Mode</h2>
+  <div id="map" style="height: 90vh;"></div>  <!-- 🔥 Required -->
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha512..."
+    crossorigin=""
+  ></script>
+  <script src="{{ url_for('static', filename='explore.js') }}"></script>
+</body>
