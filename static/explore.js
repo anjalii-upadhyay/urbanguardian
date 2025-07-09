@@ -13,46 +13,54 @@ fetch(
     return r.json();
   })
   .then((geo) => {
-    console.log("✅ Sample properties:", geo.features[0].properties);
+    console.log("✅ Sample props:", geo.features[0].properties);
 
     L.geoJSON(geo, {
       style: {
         color: "black",
         weight: 1,
-        fillOpacity: 0,        // no fill
+        fillOpacity: 0,
       },
       onEachFeature: (feature, layer) => {
-        layer.on("click", async () => {
-          // 3) grab center & ward-no
-          const c = layer.getBounds().getCenter();
-          const props = feature.properties;
-          // tweak the key name below if your file uses a different property!
-          const wardNo =
-            props.WARD_NO ||
-            props.ward_no ||
-            props.Ward_No ||
-            props.Ward_ID ||
-            "—";
-          const name = wardNo !== "—" ? `Ward ${wardNo}` : "Unnamed";
+        // --- HOVER EFFECT ---
+        layer.on("mouseover", () => {
+          layer.setStyle({ weight: 3, color: "#ff6600" });
+        });
+        layer.on("mouseout", () => {
+          layer.setStyle({ weight: 1, color: "black" });
+        });
 
-          // 4) realtime API
-          const resp = await fetch(
-            `/api/explore?lat=${c.lat}&lon=${c.lng}`
-          );
+        // --- CLICK POPUP & CIRCLES ---
+        layer.on("click", async () => {
+          const c = layer.getBounds().getCenter();
+          const p = feature.properties;
+
+          // *** robust ward label ***
+          const wardName =
+            p.WARD_NAME ||
+            p.ward_name ||
+            p.WARD_NO ||
+            p.ward_no ||
+            p.Ward_Id ||
+            p.WardID ||
+            "Unnamed Ward";
+
+          // fetch realtime data
+          const resp = await fetch(`/api/explore?lat=${c.lat}&lon=${c.lng}`);
           const d = await resp.json();
 
-          // 5) popup
+          // popup
           layer
             .bindPopup(`
-              🗺️ <b>${name}</b><br/>
+              🗺️ <b>${wardName}</b><br/>
               🌡️ ${d.temperature ?? "--"}°C<br/>
               🌬️ ${d.wind ?? "--"} m/s<br/>
               🌫️ AQI ${d.aqi ?? "--"}
             `)
             .openPopup();
 
-          // 6) heat-island marker (temp > 35°C)
-          if (d.temperature > 22.5) {
+          // heat-island (temp>35)
+          if (d.temperature > 22.6) {
             L.circle([c.lat, c.lng], {
               radius: 500,
               color: "red",
@@ -60,7 +68,7 @@ fetch(
               fillOpacity: 0.3,
             }).addTo(map);
           }
-          // 7) poor-AQI marker (AQI > 150)
+          // poor-AQI (aqi>150)
           if (d.aqi > 150) {
             L.circle([c.lat, c.lng], {
               radius: 500,
