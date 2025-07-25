@@ -1,33 +1,17 @@
+/* fill the viewport */
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;   
-  font-family: sans-serif;       /* ensure the map can fill 100% */
+  height: 100%;
 }
-
 #map {
-  height: 90vh;          /* or 100vh minus header, adjust as you like */
+  height: calc(100% - 40px); /* leave space for your header */
   width: 100%;
 }
-
 h2 {
-  text-align: center;
-  margin: 10px 0;
-}
-
-#layer-controls {
-  position: absolute;
-  top: 50px;
-  left: 10px;
-  z-index: 1000;
-  background: rgba(255,255,255,0.9);
+  margin: 0;
   padding: 8px;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
-
-#layer-controls label {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 14px;
+  background: #fff;
+  text-align: center;
+  font-family: sans-serif;
 }

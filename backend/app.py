@@ -23,6 +23,8 @@
 # if __name__ == "__main__":
 #     app.run(debug=True)
 
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "libs"))
 from flask import Flask, jsonify, request, render_template
 import requests
 

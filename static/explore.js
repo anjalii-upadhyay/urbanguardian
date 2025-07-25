@@ -1,91 +1,84 @@
 // static/explore.js
 
-import { OPEN_WEATHER_KEY } from "./config.js";
-
-// 1. Initialize the map centered on Bangalore
+// 1) Init map
 const map = L.map("map").setView([12.9716, 77.5946], 11);
 
-// 2. Add a satellite basemap (Esri World Imagery)
+// 2) Satellite basemap
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   {
     attribution:
-      "Tiles © Esri — World_Imagery (Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community)",
-    maxZoom: 19,
+      "Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, " +
+      "Getmapping, Aerogrid, IGN, IGP, UPR-EGP, GIS User Community"
   }
 ).addTo(map);
 
-// 3. Prepare the overlay tile layers from OpenWeatherMap
-const tempLayer = L.tileLayer(
-  `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${OPEN_WEATHER_KEY}`,
-  {
-    attribution: "🌡️ Heat Island (Temp °C) © OpenWeatherMap",
-    opacity: 1,
-    maxZoom: 19,
-  }
-);
+// 3) Load & parse CSV
+d3.csv(window.APP.CSV_PATH).then(rows => {
+  rows.forEach(r => {
+    r.raw = +r.avg_temp - +r.baseline_temp;
+    r.ward_no = r.ward_no.toString();
+  });
 
-const aqiLayer = L.tileLayer(
-  `https://tile.openweathermap.org/map/pm2_5/{z}/{x}/{y}.png?appid=${OPEN_WEATHER_KEY}`,
-  {
-    attribution: "💨 Air Quality (PM2.5) © OpenWeatherMap",
-    opacity: 0.5,
-    maxZoom: 19,
-  }
-);
+  // 4) Compute min/max
+  const values = rows.map(r => r.raw);
+  const minV = d3.min(values);
+  const maxV = d3.max(values);
+  const span = maxV - minV || 1;
 
-const precipLayer = L.tileLayer(
-  `https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${OPEN_WEATHER_KEY}`,
-  {
-    attribution: "💧 Precipitation (proxy Water Stress) © OpenWeatherMap",
-    opacity: 0.5,
-    maxZoom: 19,
-  }
-);
+  // 5) Build lookup: ward → normalized pct (0–100)
+  const lookup = {};
+  rows.forEach(r => {
+    lookup[r.ward_no] = ((r.raw - minV) / span) * 100;
+  });
 
-// 4. Group overlays and add the layer control (expanded by default)
-const overlays = {
-  "Heat Island (Temp °C)": tempLayer,
-  "Air Quality (PM2.5)": aqiLayer,
-  "Precipitation (Proxy Water Stress)": precipLayer,
-};
+  // 6) Color scale (green → red)
+  const colorScale = d3
+    .scaleSequential(d3.interpolateRdYlGn)
+    .domain([100, 0]); // 0 = green, 100 = red
 
-L.control
-  .layers(
-    /* baseLayers = */ null,
-    /* overlayLayers = */ overlays,
-    {
-      collapsed: false,
-      position: "topright",
-    }
-  )
-  .addTo(map);
+  // 7) Fetch & draw GeoJSON with anomaly_pct
+  fetch("/static/data/wards_with_pct.geojson")
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: feature => {
+          const pct = feature.properties.anomaly_pct ?? 0;
+          const r = Math.round((pct / 100) * 200);
+          const g = Math.round(((100 - pct) / 100) * 200);
+          return {
+            color: "#000",                   // black boundary
+            weight: 1.5,
+            fillColor: `rgb(${r},${g},0)`,
+            fillOpacity: 0.4
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          layer.bindPopup(`
+            <b>Ward ${feature.properties.KGISWardNo}</b><br>
+            ΔT: ${feature.properties.anomaly_pct.toFixed(1)}%
+          `);
+          layer.on("mouseover", () => layer.setStyle({ weight: 2 }));
+          layer.on("mouseout",  () => layer.setStyle({ weight: 1 }));
+        }
+      }).addTo(map);
 
-// 5. Show the Heat Island layer by default on load
-tempLayer.addTo(map);
-
-// 6. Fetch and draw ward boundaries
-fetch(
-  "https://raw.githubusercontent.com/datameet/Municipal_Spatial_Data/master/Bangalore/BBMP.geojson"
-)
-  .then((res) => {
-    if (!res.ok) {
-      throw new Error("Failed to fetch ward boundaries");
-    }
-    return res.json();
-  })
-  .then((geojson) => {
-    L.geoJSON(geojson, {
-      style: {
-        color: "#000",     // black outline
-        weight: 1,         // thin line
-        fillOpacity: 0,    // no fill
-      },
-      onEachFeature: (feature, layer) => {
-        // subtle highlight on hover
-        layer.on("mouseover", () => layer.setStyle({ weight: 2.5 }));
-        layer.on("mouseout", () => layer.setStyle({ weight: 1 }));
-      },
-    }).addTo(map);
-  })
-  .catch((err) => console.error("Error loading wards geojson:", err));
+      // 8) Add legend
+      const legend = L.control({ position: "bottomright" });
+      legend.onAdd = () => {
+        const div = L.DomUtil.create("div", "legend");
+        div.innerHTML = `
+          <b>ΔT Color Scale</b><br>
+          <i style="background: ${colorScale(0)}; width:18px; height:10px; display:inline-block;"></i>
+            Cool (low ΔT)<br>
+          <i style="background: ${colorScale(50)}; width:18px; height:10px; display:inline-block;"></i>
+            Medium ΔT<br>
+          <i style="background: ${colorScale(100)}; width:18px; height:10px; display:inline-block;"></i>
+            Hot (high ΔT)
+        `;
+        return div;
+      };
+      legend.addTo(map);
+    })
+    .catch(console.error);
+});

@@ -1,0 +1,244 @@
+ward_no,ward_name,avg_temp
+1,Kempegowda Ward,24.559
+2,Chowdeswari Ward,24.412
+3,Someshwara Ward,24.463
+4,Atturu Layout,24.412
+5,Yelahanka Satellite Town,24.559
+17,Shettihalli,24.606
+20,Mallasandra,24.457
+59,Mattikere,24.406
+60,Aramane Nagara,24.257
+61,Malleswaram,24.306
+37,Chanakya,24.457
+41,Peenya,24.406
+23,Nelagadderanahalli,24.590
+53,Nandini Layout,24.506
+50,Marappana Palya,24.506
+62,Subramanya Nagar,24.406
+64,Kadu Malleshwara,24.384
+65,Rajamahal Guttahalli,24.432
+119,New Bayappanahalli,24.429
+132,Dattatreya Temple,24.584
+134,Subhash Nagar,24.632
+63,Gayithri Nagar,24.584
+26,Hegganahalli,24.465
+27,Sunkadakatte,24.516
+45,Vijayanagara Krishnadevaraya,24.765
+56,Shankar Matt,24.558
+57,Shakthi Ganapathi Nagar,24.632
+58,Vrisabhavathi Nagar,24.632
+145,Kamakshipalya,24.484
+144,Basaveshwara Nagar,24.584
+143,Shivanagara,24.532
+141,Rajaji Nagar,24.532
+142,Sriramamandir,24.632
+140,Prakash Nagar,24.632
+139,Dayananda Nagar,24.584
+135,Okalipuram,24.684
+133,Gandhinagar,24.484
+130,Bharathi Nagar,24.479
+131,Ulsoor,24.579
+120,Hoysala Nagar,24.529
+125,Konena Agrahara,24.579
+138,Chickpete,24.484
+137,Cottonpete,24.584
+136,Binnipete,24.784
+33,Kengeri,25.109
+210,Basavanagudi,24.484
+212,Srinivasa Nagar,24.632
+213,Srinagar,24.632
+214,Girinagar,24.784
+34,Bande Mutt,25.209
+243,Kudlu,24.491
+106,Hudi,24.605
+115,Bellanduru,24.679
+114,Marathahalli,24.657
+107,Garudachar Playa,24.505
+122,New Thippasandra,24.529
+123,Jalakanteshwara Nagara,24.629
+51,Nagapura,24.484
+54,Jai Maruthinagara,24.657
+55,Puneet Rajkumar,24.632
+129,Sampangiram Nagar,24.484
+121,Old Thippasandra,24.529
+124,Jeevanbhima Nagar,24.529
+40,Veeramadakari,24.306
+93,HAL Airport,24.529
+42,Lakshmi Devi Nagar,24.457
+31,Doddagollarahatti,24.965
+32,Ullal,25.116
+21,T Dasarahalli,24.506
+22,Chokkasandra,24.590
+24,Rajagopal Nagar,24.357
+25,Rajeshwari Nagar,24.557
+43,Ranadheera Kanteerava,24.606
+44,Veera Sindhura Lakshamana,24.665
+46,Sir M. Vishweshwaraiah,24.816
+47,Nalvadi Krishnaraja Wadior Park,25.016
+36,Chatrapati Shivaji,24.457
+48,Jnana Bharathi,25.116
+49,Rajarajeshwari Nagar,24.960
+117,C V Raman Nagar,24.479
+118,Lal Bahadur Nagar,24.379
+211,Hanumanth Nagar,24.532
+52,Mahalakshimpuram,24.406
+216,Vidyapeeta ward,24.378
+215,Katriguppe,24.578
+224,Anjanapura,24.388
+181,Shantala Nagar,24.479
+200,Yediyur,24.378
+167,Jagajivanaram Nagar,24.684
+218,Subramanyapura,24.827
+229,Ibluru,24.491
+228,Naganathapura,24.345
+71,Chamundi Nagara,24.430
+239,Hulimavu,24.427
+169,Devaraj Urs Nagar,24.784
+241,Puttenahalli - Sarakki Lake,24.478
+179,Jogupalya,24.579
+178,Domlur,24.579
+222,RBI layout,24.327
+161,Attiguppe,24.784
+160,Bapuji Nagar,24.932
+39,Kanneshwara Rama,24.357
+168,Padarayanapura,24.732
+220,Yelachenahalli,24.527
+38,J P Park,24.533
+166,Chalavadipalya,24.584
+236,Devarachikkanahalli,24.445
+157,Vijayanagar,24.784
+231,Mangammanapalya,24.545
+221,Konanakunte,24.527
+238,Arakere,24.427
+242,Jaraganahalli,24.478
+223,Chunchaghatta,24.378
+230,Agara,24.591
+205,Vikram Nagar,24.727
+225,Gottigere,24.236
+201,Umamaheshwara Ward,24.378
+204,Kumaraswamy Layout,24.478
+156,Kempapura Agrahara,24.784
+187,Adugodi,24.529
+98,Kacharkanahalli,24.580
+185,Ejipura,24.629
+99,HRBR Layout,24.480
+74,Kaval Bairasandra,24.430
+176,Someshwara Nagar,24.532
+175,Ashoka Pillar,24.432
+188,Lakkasandra,24.529
+177,Hombegowda Nagara,24.632
+174,Vishveshwara Puram,24.532
+100,Banasavadi,24.453
+94,Hennur,24.630
+80,Pulikeshinagar,24.429
+12,Kodigehalli,24.557
+8,Jakkuru,24.580
+7,Thanisandra,24.530
+10,Kempapura,24.530
+9,Amrutahalli,24.530
+103,Maruthi Seva Nagar,24.479
+197,Shakambari Nagar,24.278
+79,Sagayarapuram,24.380
+101,Kammanahalli,24.480
+75,Kushal Nagar,24.580
+102,Lingarajapura,24.430
+97,Venkateshpura,24.480
+77,Devara Jeevanahalli,24.480
+76,Muneshwara Nagar,24.480
+78,S K Garden,24.430
+195,Tilak Nagar,24.427
+194,Gurappanapalya,24.478
+196,Byrasandra,24.327
+191,Jakkasandra,24.545
+189,Suddagunte Palya,24.427
+173,Sunkenahalli,24.532
+186,Koramangala,24.591
+6,Kogilu,24.459
+170,Azad Nagar,24.732
+165,Chamrajapet,24.532
+96,Kadugondanahalli,24.580
+110,Whitefield,24.605
+30,Herohalli,24.716
+28,Dodda Bidarakallu,24.690
+219,Vasanthpura,24.553
+232,HSR - Singasandra,24.545
+116,Doddakanahalli,24.545
+159,Hampi Nagar,24.832
+158,Hosahalli,24.732
+164,Avalahalli,24.884
+162,Gali Anjenaya Temple ward,24.932
+163,Veerabhadranagar,24.984
+172,Dharmaraya Swamy Temple Ward,24.584
+171,Sudham Nagara,24.632
+180,Agaram,24.579
+109,AECS Layout,24.557
+108,Dodda Nekkundi,24.605
+104,Kadugodi,24.705
+105,Belathur,24.548
+235,Bommanahalli,24.491
+234,Hongasandra,24.545
+233,Rupenaagrahara,24.491
+237,Bilekhalli,24.527
+240,Vinayakanagar,24.427
+209,Hosakerehalli,24.827
+207,Kamakya Nagar,24.627
+208,Deen Dayalu Ward,24.627
+95,Nagavara,24.530
+16,Kammagondanahalli,24.612
+126,Ramaswamy Palya,24.484
+127,Jayamahal,24.332
+128,Vasanth Nagar,24.332
+190,Madivala,24.527
+192,BTM Layout,24.527
+193,N S Palya,24.478
+66,Radhakrishna Temple Ward,24.506
+67,Sanjaya Nagar,24.533
+68,Vishwanath Nagenahalli,24.580
+70,Hebbala,24.457
+72,Ganga Nagar,24.406
+73,Jayachamarajendra  Nagar,24.357
+69,Manorayanapalya,24.530
+15,Kuvempunagar,24.406
+13,Dodda Bommasandra,24.357
+11,Byatarayanapura,24.212
+14,Vidyaranyapura,24.457
+18,Bagalakunte,24.740
+111,Hagadur,24.705
+112,Varthuru,24.677
+113,Munnekollala,24.701
+199,Sarakki,24.378
+198,J P Nagar,24.427
+81,Horamavu,24.630
+82,Babusab Palya,24.530
+83,Kalkere,24.580
+87,Medahalli,24.505
+84,Ramamurthy Nagara,24.430
+85,Vijinapura,24.479
+86,K R Puram,24.555
+88,Basavanapura,24.605
+89,Devasandra,24.505
+91,A Narayanapura,24.579
+90,Mahadevapura,24.529
+92,Vijnana Nagar,24.579
+227,Begur,24.445
+226,Kalena Agrahara,24.336
+217,Uttarahalli,24.678
+206,Padmanabha Nagar,24.527
+202,Ganesh Mandir ward,24.527
+203,Banashankari Temple ward,24.478
+146,Dr. Raj Kumar Ward,24.732
+147,Agrahara Dasarahalli,24.684
+149,Kaveripura,24.732
+148,Govindaraja Nagar,24.584
+150,Marenahalli,24.632
+151,Maruthi Mandir ward,24.784
+152,Mudalapalya,24.765
+153,Nagarabhavi,24.965
+154,Chandra Layout,24.965
+155,Nayandahalli,25.065
+19,Defence Colony,24.540
+35,Hemmigepura,24.860
+182,Shanthi Nagar,24.632
+183,Neelasandra,24.479
+184,Vannarapete,24.579
+29,Vidyamanyanagar,24.665
