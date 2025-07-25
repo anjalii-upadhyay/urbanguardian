@@ -1,45 +1,82 @@
-# backend/routes/explore.py
-
-from flask import Blueprint, request, jsonify
-import requests
+import json, statistics, requests
+from flask import Blueprint, jsonify
 
 explore_bp = Blueprint("explore", __name__)
 
-# Free weather & air-quality endpoints (no API key required)
-OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
-AQI_URL        = "https://air-quality-api.open-meteo.com/v1/air-quality"
+# Load ward polygons once
+with open("data/bangalore_wards.geojson") as f:
+    wards = json.load(f)["features"]
+
+def polygon_centroid(coords):
+    """Approximate centroid for a Polygon (first ring only)."""
+    lats, lons = [], []
+    for lon, lat in coords[0]:
+        lons.append(lon)
+        lats.append(lat)
+    return sum(lats) / len(lats), sum(lons) / len(lons)
+
+def fetch_temp(lat, lon):
+    """Call Open‑Meteo for current temperature."""
+    r = requests.get("https://api.open-meteo.com/v1/forecast", params={
+        "latitude": lat,
+        "longitude": lon,
+        "current_weather": True
+    }, timeout=5)
+    data = r.json().get("current_weather", {})
+    return data.get("temperature")
+
+@explore_bp.route("/api/heat_anomaly")
+def heat_anomaly():
+    # 1) Gather temperatures for each ward centroid
+    ward_temps = []
+    for feat in wards:
+        geom = feat["geometry"]
+        if geom["type"] == "Polygon":
+            lat, lon = polygon_centroid(geom["coordinates"])
+        else:
+            # simple fallback for MultiPolygon: first polygon
+            lat, lon = polygon_centroid(geom["coordinates"][0])
+        temp = fetch_temp(lat, lon) or 0
+        ward_temps.append((feat["properties"]["WARD_NO"], temp))
+
+    # 2) Compute citywide median
+    temps_only = [t for _, t in ward_temps]
+    median = statistics.median(temps_only) if temps_only else 0
+
+    # 3) Build anomalies dict
+    anomalies = {
+        str(ward_id): round(temp - median, 2)
+        for ward_id, temp in ward_temps
+    }
+    return jsonify(anomalies)
 
 @explore_bp.route("/api/explore")
-def get_environment_data():
+def realtime_data():
+    """Existing route for temperature, wind, AQI popups."""
     lat = request.args.get("lat")
     lon = request.args.get("lon")
     if not lat or not lon:
-        return jsonify({"error": "Missing coordinates"}), 400
+        return jsonify({"error": "Missing coords"}), 400
 
-    # 1) Current weather from Open-Meteo
-    meteo = requests.get(OPEN_METEO_URL, params={
-        "latitude":        float(lat),
-        "longitude":       float(lon),
-        "current_weather": True
-    }).json()
-
-    # 2) Hourly PM2.5 (µg/m³) from Open-Meteo Air-Quality API
-    aqi_resp = requests.get(AQI_URL, params={
-        "latitude":  lat,
+    # Open-Meteo weather
+    w = requests.get("https://api.open-meteo.com/v1/forecast", params={
+        "latitude": lat,
         "longitude": lon,
-        "hourly":    "pm2_5"
-    }).json()
-    pm25 = None
-    try:
-        pm25_list = aqi_resp["hourly"]["pm2_5"]
-        pm25      = pm25_list[-1] if pm25_list else None
-    except KeyError:
-        pm25 = None
+        "current_weather": True
+    }).json().get("current_weather", {})
 
-    # 3) Return consolidated JSON
+    # OpenWeatherMap AQI (free tier)
+    aqi = None
+    try:
+        aqi_resp = requests.get("https://api.openweathermap.org/data/2.5/air_pollution", params={
+            "lat": lat, "lon": lon, "appid": "123f39e4276ae8f8750e0dc1bf345d83"
+        }).json()
+        aqi = aqi_resp["list"][0]["main"]["aqi"]
+    except:
+        pass
+
     return jsonify({
-        "temperature": meteo.get("current_weather", {}).get("temperature"),
-        #"humidity":    meteo.get("current_weather", {}).get("humidity"),
-        "wind":        meteo.get("current_weather", {}).get("windspeed"),
-        "aqi":         pm25
+        "temperature": w.get("temperature"),
+        "wind":        w.get("windspeed"),
+        "aqi":         aqi
     })
