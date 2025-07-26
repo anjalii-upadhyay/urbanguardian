@@ -3,6 +3,9 @@
 // 1) Init map
 const map = L.map("map").setView([12.9716, 77.5946], 11);
 
+map.createPane('topMarkers');
+map.getPane('topMarkers').style.zIndex = 650;
+
 // 2) Satellite basemap
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -12,6 +15,11 @@ L.tileLayer(
       "Getmapping, Aerogrid, IGN, IGP, UPR-EGP, GIS User Community"
   }
 ).addTo(map);
+
+let wardsGeoJson = null;
+fetch("/static/data/wards_with_pct.geojson")
+  .then(res => res.json())
+  .then(data => { wardsGeoJson = data; });
 
 // 3) Load & parse CSV
 d3.csv(window.APP.CSV_PATH).then(rows => {
@@ -55,7 +63,7 @@ d3.csv(window.APP.CSV_PATH).then(rows => {
         },
         onEachFeature: (feature, layer) => {
           layer.bindPopup(`
-            <b>Ward ${feature.properties.KGISWardNo}</b><br>
+            <b> ${feature.properties.KGISWardName}</b><br>
             ΔT: ${feature.properties.anomaly_pct.toFixed(1)}%
           `);
           layer.on("mouseover", () => layer.setStyle({ weight: 2 }));
@@ -132,46 +140,70 @@ d3.csv(window.APP.CSV_PATH).then(rows => {
 
 });
 
-//------------------------ AQI STATION ---------------------
-let aqiLayer = L.layerGroup().addTo(map);
+//-------------------------=----- AQI STATION ------------------------------------
+// Fetch GeoJSON first, then load AQI dots
+fetch("/static/data/wards_with_pct.geojson")
+  .then(res => res.json())
+  .then(data => {
+    wardsGeoJson = data;
 
-d3.csv(window.APP.AQI_CSV_PATH).then(rows => {
-  // Step 1: Log to confirm column names
-  console.log("AQI CSV loaded:", rows.length, rows);
+    // Now load AQI dots
+    d3.csv(window.APP.AQI_CSV_PATH).then(rows => {
+      // Step 1: Parse CSV
+      rows.forEach((r, i) => {
+        r.lat = +r.latitude;
+        r.lon = +r.longitude;
+        r.aqi = +r.AQI;
+        if (isNaN(r.lat) || isNaN(r.lon)) {
+          console.warn(`⚠️ Row ${i} has bad lat/lon:`, r);
+        }
+      });
 
-  // Step 2: Parse with correct column names!
-  rows.forEach((r, i) => {
-    r.lat = +r.latitude;
-    r.lon = +r.longitude;
-    r.aqi = +r.AQI;
-    if (isNaN(r.lat) || isNaN(r.lon)) {
-      console.warn(`⚠️ Row ${i} has bad lat/lon:`, r);
-    }
+      function findWardTempAndName(lat, lon) {
+        if (!wardsGeoJson || !window.turf || !turf.booleanPointInPolygon) return { deltaT: null, wardName: null };
+        for (let feature of wardsGeoJson.features) {
+          if (turf.booleanPointInPolygon([lon, lat], feature)) {
+            return {
+              deltaT: feature.properties.anomaly_pct,
+              wardName: feature.properties.KGISWardName
+            };
+          }
+        }
+        return { deltaT: null, wardName: null };
+      }
+
+      // Step 2: Scaling
+      const values = rows.map(r => r.aqi);
+      const minA = d3.min(values);
+      const maxA = d3.max(values);
+
+      const radiusScale  = d3.scaleLinear().domain([minA, maxA]).range([10, 12]);
+      const opacityScale = d3.scaleLinear().domain([minA, maxA]).range([0.2, 1]);
+
+      let aqiLayer = L.layerGroup().addTo(map);
+
+      rows.forEach(r => {
+        if (isNaN(r.lat) || isNaN(r.lon)) return;
+
+        // Get ward details
+        let { deltaT, wardName } = findWardTempAndName(r.lat, r.lon);
+        let nameText = wardName ? `<b>${wardName}</b>` : `<b>Unknown Ward</b>`;
+        let tempText = (deltaT !== null && deltaT !== undefined)
+          ? `<br>ΔT: ${Number(deltaT).toFixed(1)}%`
+          : `<br>ΔT: N/A`;
+
+        L.circleMarker([r.lat, r.lon], {
+          radius:      radiusScale(r.aqi),
+          fillOpacity: opacityScale(r.aqi),
+          color:       "#000",
+          weight:      1,
+          fillColor:   "white",
+          pane:        'topMarkers'
+        })
+        .bindPopup(`${nameText}<br>Annual Avg AQI: ${r.aqi}${tempText}`)
+        .addTo(aqiLayer);
+      });
+
+      // add your AQI layer toggle logic here, if needed
+    });
   });
-
-  // Step 3: Show debug for first 5 rows
-  rows.slice(0,5).forEach(r => {
-    console.log(`Station: ${r.Station}, lat=${r.lat}, lon=${r.lon}, AQI=${r.aqi}`);
-  });
-
-  // Step 4: Scaling
-  const values = rows.map(r => r.aqi);
-  const minA = d3.min(values);
-  const maxA = d3.max(values);
-
-  const radiusScale  = d3.scaleLinear().domain([minA, maxA]).range([7, 18]);
-  const opacityScale = d3.scaleLinear().domain([minA, maxA]).range([1, 0.2]);  // Best = 1 (opaque), Worst = 0.2 (faint)
-
-  rows.forEach(r => {
-    if (isNaN(r.lat) || isNaN(r.lon)) return;
-    L.circleMarker([r.lat, r.lon], {
-      radius:      radiusScale(r.aqi),
-      fillOpacity: opacityScale(r.aqi),
-      color:       "#000",
-      weight:      1,
-      fillColor:   "white"
-    })
-    .bindPopup(`<b>${r.Station}</b><br>Annual Avg AQI: ${r.aqi}`)
-    .addTo(aqiLayer);
-  });
-}).catch(err => console.error("❌ AQI load failed:", err));
